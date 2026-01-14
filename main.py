@@ -20,16 +20,19 @@ def analyze_file(path):
                 empty += 1
                 continue
 
-            # multiline comment start or inside
-            if "/*" in stripped:
-                comments += 1
-                in_multiline_comment = True
-
+            # multiline comment
             if in_multiline_comment:
                 comments += 1
                 if "*/" in stripped:
                     in_multiline_comment = False
                 continue
+            
+            if "/*" in stripped:
+                comments += 1
+                if "*/" not in stripped:
+                    in_multiline_comment = True
+                continue
+
 
             # single-line comment
             if stripped.startswith("//") or stripped.startswith("#"):
@@ -37,11 +40,11 @@ def analyze_file(path):
                 continue
 
             # logical lines (count ; or statements)
-            logical += len(re.split(r";|\band\b|\bor\b", stripped))
+            logical += 1
 
             # cyclomatic complexity (count decision points)
-            cyclomatic += len(re.findall(r"\b(if|for|while|case|catch)\b", stripped))
-            cyclomatic += stripped.count("&&") + stripped.count("||")
+            cyclomatic += len(re.findall(r"\b(if|elif|else|for|while|case|catch)\b", stripped))
+            
 
     return total, empty, comments, logical, cyclomatic
 
